@@ -29,8 +29,8 @@ jobs:
           username: ${{ secrets.EC2_USERNAME}}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo kubectl apply -f ~/k8s/deployment.yml
-            sudo kubectl apply -f ~/k8s/service.yml
+            sudo kubectl apply -f ~/k8s/nginx-deployment.yml
+            sudo kubectl apply -f ~/k8s/nginx-service.yml
             sudo kubectl rollout status deployment/nginx-deployment
           # deployment/nginx-deployment 에서
           # 'deployment' 는 deployment.yml 파일에서의 kind(리소스 타입)
