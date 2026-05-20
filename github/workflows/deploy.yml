@@ -1,0 +1,37 @@
+name: Deploy to EC2 k3s
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        # GitHub에서 만든 checkout 액션의 3번째 릴리즈. 못바꿈 v3 여야 함
+
+      - name: Copy k8s manifests to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME}}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "k8s/"
+          target: "~/"
+
+      - name: Deploy to k3s
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME}}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo kubectl apply -f ~/k8s/deployment.yml
+            sudo kubectl apply -f ~/k8s/service.yml
+            sudo kubectl rollout status deployment/nginx-deployment
+          # deployment/nginx-deployment 에서
+          # 'deployment' 는 deployment.yml 파일에서의 kind(리소스 타입)
+          # 'nginx-deployment' 는 name 임.
